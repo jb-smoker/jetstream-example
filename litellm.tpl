@@ -32,6 +32,71 @@ systemctl enable docker
 # Add ubuntu user to docker group
 usermod -aG docker ubuntu
 
+# Write LiteLLM config file
+cat <<EOF > /home/ubuntu/config.yaml
+model_list:
+  - model_name: gpt-3.5-turbo
+    litellm_params:
+      model: openai/gpt-3.5-turbo
+  - model_name: gpt-5-search-api-2025-10-14
+    litellm_params:
+      model: openai/gpt-5-search-api-2025-10-14
+  - model_name: gpt-audio-mini-2025-10-06
+    litellm_params:
+      model: openai/gpt-audio-mini-2025-10-06
+  - model_name: gpt-5-search-api
+    litellm_params:
+      model: openai/gpt-5-search-api
+  - model_name: sora-2
+    litellm_params:
+      model: openai/sora-2
+  - model_name: sora-2-pro
+    litellm_params:
+      model: openai/sora-2-pro
+  - model_name: davinci-002
+    litellm_params:
+      model: openai/davinci-002
+  - model_name: babbage-002
+    litellm_params:
+      model: openai/babbage-002
+  - model_name: gpt-3.5-turbo-instruct
+    litellm_params:
+      model: openai/gpt-3.5-turbo-instruct
+  - model_name: gpt-3.5-turbo-instruct-0914
+    litellm_params:
+      model: openai/gpt-3.5-turbo-instruct-0914
+  - model_name: dall-e-3
+    litellm_params:
+      model: openai/dall-e-3
+  - model_name: dall-e-2
+    litellm_params:
+      model: openai/dall-e-2
+  - model_name: gpt-3.5-turbo-1106
+    litellm_params:
+      model: openai/gpt-3.5-turbo-1106
+  - model_name: tts-1-hd
+    litellm_params:
+      model: openai/tts-1-hd
+  - model_name: tts-1-1106
+    litellm_params:
+      model: openai/tts-1-1106
+  - model_name: tts-1-hd-1106
+    litellm_params:
+      model: openai/tts-1-hd-1106
+  - model_name: text-embedding-3-small
+    litellm_params:
+      model: openai/text-embedding-3-small
+  - model_name: text-embedding-3-large
+    litellm_params:
+      model: openai/text-embedding-3-large
+  - model_name: gpt-3.5-turbo-0125
+    litellm_params:
+      model: openai/gpt-3.5-turbo-0125
+  - model_name: gpt-4o
+    litellm_params:
+      model: openai/gpt-4o
+EOF
+
 # Pull and run LiteLLM container
 docker run -d \
   --name litellm \
@@ -39,7 +104,8 @@ docker run -d \
   --platform linux/amd64 \
   -p ${litellm_port}:4000 \
   -e OPENAI_API_KEY=${litellm_api_key} \
-  ${litellm_image}
+  -v /home/ubuntu/config.yaml:/app/config.yaml \
+  ${litellm_image} --config /app/config.yaml
 
 # Wait for container to start
 sleep 5
