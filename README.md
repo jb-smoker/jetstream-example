@@ -1,6 +1,45 @@
 # jetstream-example: LiteLLM Proxy on AWS with Terraform
 
-Deploy LiteLLM proxy to AWS using Infrastructure-as-Code with Terraform and GitHub Actions. This project automates the provisioning of a secure, publicly accessible LiteLLM API endpoint with automated CI/CD workflows.
+## Project Requirements
+
+Deploy a secure, scalable LLM Gateway using LiteLLM, exposed via a proxy, deployed on cloud infrastructure using Terraform, and with all secrets (e.g., API keys) managed through GitHub Secrets.
+
+### Cloud Deployment
+
+- Deploy the LiteLLM container on a public cloud provider of your choice: AWS (preferred) or GCP
+- Use Terraform to provision:
+- The compute resource (e.g., AWS EC2, ECS, or GCP Compute Instance)
+- Associated networking infrastructure (VPC, subnet, public IP etc.)
+
+### LiteLLM Setup
+
+- Run LiteLLM in a Docker container.
+- Ensure the container exposes the proxy API on port 3000 (default).
+
+### Public Access
+
+- The LiteLLM proxy should be accessible via a public endpoint (public IP or domain).
+- Include an example cURL request in the README to demonstrate how to access the proxy.
+
+### Secrets Management
+
+- Store sensitive information using GitHub Secrets.
+- Pass these secrets securely to the container (via CI/CD or instance environment).
+- Do not hardcode or commit any secrets to the repo.
+
+### Network Security
+
+- Configure firewall rules to restrict inbound access:
+- Use AWS Security Groups or GCP Firewall Rules.
+- Only allow traffic on required ports (e.g., 3000).
+
+### Known Issues/Gaps
+
+1. LiteLLM currently has no models configured. Research required for configuration to achieve end-to-end query/response
+2. The LiteLLM API is exposed via http on port 3000, not meeting the standards of "secure" set in the requirements. Solutions include:
+   1. Adding a reverse proxy or AWS ALB to implement tls termination.
+   2. Adding a WAF to mitigate common attacks.
+3. Scaling has been deemed out of scope for this exercise.
 
 ## Overview
 
@@ -311,35 +350,9 @@ jetstream-example/
         └── terraform.yml         # GitHub Actions workflow
 ```
 
-## Project Requirements
-
-✅ **Secrets Management**
-
-- All sensitive values stored in GitHub Secrets
-- Never commit credentials to repository
-- Rotate API keys regularly
-
-✅ **Network Security**
-
-- Security group restricts inbound traffic to specific ports
-- SSH key-based authentication only
-- Egress traffic unrestricted for API calls
-
-✅ **Infrastructure**
-
-- Infrastructure-as-Code for reproducibility
-- Version control for all changes
-- PR review process before deployment
-
-✅ **Operations**
-
-- Regular Docker image updates
-- Monitor EC2 instance health
-- Set up AWS CloudWatch alarms for instance monitoring
-
 ## Contributing
 
-1. Create a feature branch: `git checkout -b feature/my-feature`
+1. Create a feature branch: `git switch -c feature/my-feature`
 2. Make changes and test
 3. Push and open a PR
 4. GitHub Actions automatically runs `terraform plan`
