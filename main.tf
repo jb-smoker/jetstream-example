@@ -1,7 +1,4 @@
-data "http" "source_ip" {
-  url = "http://checkip.amazonaws.com/"
-}
-
+# VPC module (includes public/private subnets, IGW, NAT GW, egress security group)
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
   version = "6.4.0"
@@ -18,6 +15,7 @@ module "vpc" {
   enable_vpn_gateway = false
 }
 
+# Security Group for LiteLLM instance
 resource "aws_security_group" "litellm" {
   name        = "${var.naming_prefix}-litellm-sg"
   description = "security group for LiteLLM instances"
@@ -30,24 +28,16 @@ resource "aws_security_group_rule" "litellm" {
   from_port         = 3000
   to_port           = 3000
   protocol          = "tcp"
-  cidr_blocks       = ["${chomp(data.http.source_ip.response_body)}/32"]
+  cidr_blocks       = var.allowed_cidr_blocks
   security_group_id = aws_security_group.litellm.id
 }
 
-resource "aws_security_group_rule" "litellm_ssh" {
-  type              = "ingress"
-  description       = "Allow inbound ssh access"
-  from_port         = 22
-  to_port           = 22
-  protocol          = "tcp"
-  cidr_blocks       = ["${chomp(data.http.source_ip.response_body)}/32"]
-  security_group_id = aws_security_group.litellm.id
-}
-
+# Latest Ubuntu 24.04 LTS AMI 
 data "aws_ssm_parameter" "ubuntu_ami" {
   name = "/aws/service/canonical/ubuntu/server/24.04/stable/current/amd64/hvm/ebs-gp3/ami-id"
 }
 
+# Add EC2 keypair for SSH access
 resource "random_id" "this" {
   byte_length = 4
 }
@@ -57,6 +47,7 @@ resource "aws_key_pair" "litellm" {
   public_key = var.ssh_public_key
 }
 
+# EC2 Instance for LiteLLM
 module "litellm" {
   source  = "terraform-aws-modules/ec2-instance/aws"
   version = "6.1.1"
@@ -79,7 +70,8 @@ module "litellm" {
   })
 }
 
+# Output the public IP of the LiteLLM instance
 output "litellm_public_ip" {
   description = "Public IP of the LiteLLM instance"
-  value       = "http://${module.litellm.public_ip}"
+  value       = "http://${module.litellm.public_ip}:3000"
 }
