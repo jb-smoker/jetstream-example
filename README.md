@@ -35,11 +35,10 @@ Deploy a secure, scalable LLM Gateway using LiteLLM, exposed via a proxy, deploy
 
 ### Known Issues/Gaps
 
-1. LiteLLM currently has no models configured. Research required for configuration to achieve end-to-end query/response
-2. The LiteLLM API is exposed via http on port 3000, not meeting the standards of "secure" set in the requirements. Solutions include:
+1. The LiteLLM API is exposed via http on port 3000, not meeting the standards of "secure" set in the requirements. Solutions include:
    1. Adding a reverse proxy or AWS ALB to implement tls termination.
    2. Adding a WAF to mitigate common attacks.
-3. Scaling has been deemed out of scope for this exercise.
+2. Scaling has been deemed out of scope for this exercise.
 
 ## Overview
 
