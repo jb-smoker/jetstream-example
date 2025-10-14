@@ -24,6 +24,7 @@ variable "ssh_public_key" {
 variable "openai_api_key" {
   description = "OpenAI API key for accessing the API"
   type        = string
+  sensitive   = true
 }
 
 variable "instance_type" {
@@ -58,12 +59,6 @@ variable "litellm_config_url" {
 
 variable "allowed_cidr_blocks" {
   description = "CIDR blocks allowed to access LiteLLM API"
-  type        = list(string)
-  default     = ["0.0.0.0/0"] # Change this to restrict access
-}
-
-variable "ssh_cidr_blocks" {
-  description = "CIDR blocks allowed for SSH access"
   type        = list(string)
   default     = ["0.0.0.0/0"] # Change this to restrict access
 }
